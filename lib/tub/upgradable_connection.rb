@@ -21,11 +21,36 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #++
 
-module ThinUpgradableBackend
-  ROOT = File.expand_path(File.dirname(__FILE__))
-end
-TUB = ThinUpgradableBackend
+require 'active_support/core_ext/class/attribute_accessors'
+require 'eventmachine'
 
-require "#{TUB::ROOT}/tub/version"
-require "#{TUB::ROOT}/tub/upgradable_connection"
-require "#{TUB::ROOT}/tub/upgradable_tcp_server"
+module TUB
+  class UpgradableConnection < EM::Connection
+    cattr_accessor :initial_handler_class
+    cattr_accessor :upgraded_handler_class
+    
+    attr_accessor :handler
+    
+    def post_init
+      @handler = UpgradableConnection.initial_handler_class.new @signature
+      @upgraded = false
+    end
+    
+    def receive_data(data)
+      @handler.receive_data(data)
+    end
+    
+    def unbind
+      @handler.unbind
+    end
+    
+    def upgrade!
+      return if @upgraded
+      @handler = UpgradableConnection.upgraded_handler_class.new @signature
+      @upgraded = true
+    end
+    
+  end
+end
+
+
