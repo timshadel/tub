@@ -1,3 +1,6 @@
+Try It
+======
+
 Make a server
 
     require 'tub'
@@ -35,3 +38,11 @@ And then type anything you want, it'll echo back to you
     Hello world
 
 Have fun!
+
+
+TODO
+======
+* Make it actually care about what protocol the client requests and which you offer
+* Figure out rackup file
+* Show a sample app working in Heroku, with a sample client
+* Remove the Rack wrapper app and make it part of the example, but customizable, so you control when upgrade occurs
